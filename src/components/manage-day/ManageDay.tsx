@@ -1,4 +1,4 @@
-import { deleteDay, editDay, getAllDay } from "@/sarvices/DayServices";
+import { deleteDay, editDay, getAllDay } from "@/services/DayServices";
 import { IDay } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 import Layout from "../layout/Layout";

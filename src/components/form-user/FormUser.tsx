@@ -1,4 +1,4 @@
-import { editUser, insertUser } from "@/sarvices/UserServices";
+import { editUser, insertUser } from "@/services/UserServices";
 import { IUser } from "@/types/types";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";

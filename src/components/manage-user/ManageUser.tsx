@@ -1,4 +1,4 @@
-import { deleteUser, editUser, getAllUser } from "@/sarvices/UserServices";
+import { deleteUser, editUser, getAllUser } from "@/services/UserServices";
 import { IUser } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 import Layout from "../layout/Layout";

@@ -1,4 +1,4 @@
-import { getAllDay } from "@/sarvices/DayServices";
+import { getAllDay } from "@/services/DayServices";
 import Layout from "@/components/layout/Layout";
 import { useCallback } from "react";
 

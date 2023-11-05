@@ -1,4 +1,4 @@
-import { editDay, insertDay } from "@/sarvices/DayServices";
+import { editDay, insertDay } from "@/services/DayServices";
 import { IDay } from "@/types/types";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
