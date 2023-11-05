@@ -1,36 +1,36 @@
-import { editUser, insertUser } from "@/sarvices/UserServices";
-import { IUser } from "@/types/types";
+import { editDay, insertDay } from "@/sarvices/DayServices";
+import { IDay } from "@/types/types";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 
-interface IFormUser {
-	user?: IUser | null;
-	onAdd: (user: Array<IUser>) => void;
-	onEdit: (user: Array<IUser>) => void;
+interface IFormDay {
+	day?: IDay | null;
+	onAdd: (day: Array<IDay>) => void;
+	onEdit: (day: Array<IDay>) => void;
 	onCancell: () => void;
 }
 
-const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
+const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 	const {
 		register,
 		handleSubmit,
 		watch,
 		formState: { errors },
-	} = useForm<IUser>({
-		defaultValues: user ?? undefined,
+	} = useForm<IDay>({
+		defaultValues: day ?? undefined,
 	});
 
 	const onSubmit = useCallback(
-		async (data: IUser) => {
-			if (!user) {
-				const result = await insertUser(data);
+		async (data: IDay) => {
+			if (!day) {
+				const result = await insertDay(data);
 				if (!result.error) {
 					onAdd(result.data);
 				} else {
 					alert(JSON.stringify(result.error));
 				}
 			} else {
-				const result = await editUser(data);
+				const result = await editDay(data);
 				if (!result.error) {
 					onEdit(result.data);
 				} else {
@@ -38,17 +38,17 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 				}
 			}
 		},
-		[onAdd, onEdit, user]
+		[onAdd, onEdit, day]
 	);
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)}>
-			{user?.id && (
+			{day?.id && (
 				<div className="form-control w-full">
 					<label className="label">
 						<span className="label-text">Id</span>
 					</label>
-					<input defaultValue={user?.id} type="text" placeholder="Type here" className="input input-bordered w-full" {...register("id")} />
+					<input defaultValue={day?.id} type="text" placeholder="Type here" className="input input-bordered w-full" {...register("id")} />
 				</div>
 			)}
 
@@ -57,7 +57,7 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 					<span className="label-text">Nome</span>
 				</label>
 				<input
-					defaultValue={user?.name}
+					defaultValue={day?.name}
 					type="text"
 					placeholder="Type here"
 					className="input input-bordered w-full"
@@ -70,12 +70,12 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 				)}
 			</div>
 
-			<div className="form-control w-full ">
+			{/* <div className="form-control w-full ">
 				<label className="label">
 					<span className="label-text">Cognome</span>
 				</label>
 				<input
-					defaultValue={user?.surname}
+					defaultValue={day?.surname}
 					type="text"
 					placeholder="Type here"
 					className="input input-bordered w-full"
@@ -86,7 +86,7 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 						<span className="label-text-alt text-red-500">{errors.surname.message}</span>
 					</label>
 				)}
-			</div>
+			</div> */}
 
 			<div className="mt-4 text-right flex flex-row gap-2 justify-end">
 				<input className="btn" type="submit" value={"salva"} />
@@ -96,4 +96,4 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 	);
 };
 
-export default FormUser;
+export default FormDay;

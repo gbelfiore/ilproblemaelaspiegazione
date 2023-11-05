@@ -4,4 +4,13 @@ interface IUser {
     surname: string;
 }
 
-export type { IUser }
+interface IDay {
+    id: number;
+    name: string;
+    rake: number;
+    startTime: string;
+    endTime: string;
+    date: string;
+}
+
+export type { IUser, IDay }

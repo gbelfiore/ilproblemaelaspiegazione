@@ -1,4 +1,4 @@
-import { deleteUser, editUser, getAllUser } from "@/Sarvices/UserServices";
+import { deleteUser, editUser, getAllUser } from "@/sarvices/UserServices";
 import { IUser } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 import Layout from "../layout/Layout";
@@ -79,7 +79,7 @@ const ManageUser = () => {
 			<table className="table">
 				<thead>
 					<tr>
-						<th className="w-[100px]"></th>
+						<th className="w-[100px]">ID</th>
 						<td className="w-[250px]">Nome</td>
 						<td className="w-[250px]">Cognome</td>
 						<th></th>
@@ -106,7 +106,7 @@ const ManageUser = () => {
 				</tbody>
 				<tfoot>
 					<tr>
-						<th></th>
+						<th>ID</th>
 						<td>Nome</td>
 						<td>Cognome</td>
 						<th></th>
