@@ -1,0 +1,29 @@
+.layout {
+	@apply flex flex-col;
+	@apply h-full w-full;
+}
+
+.layoutHeader {
+	@apply h-[68px];
+}
+
+.layoutHeaderLogo {
+	@apply h-[50px];
+	@apply mr-4;
+}
+.layoutHeaderLogo > img {
+	@apply h-full;
+}
+
+.layoutHeaderTitle {
+	@apply flex-1 uppercase text-center;
+	@apply text-xl;
+	@apply flex flex-row justify-center;
+}
+
+.layoutBody {
+	@apply h-[calc(100%-68px)];
+	@apply bg-base-100;
+	@apply p-4;
+	@apply overflow-y-auto;
+}
