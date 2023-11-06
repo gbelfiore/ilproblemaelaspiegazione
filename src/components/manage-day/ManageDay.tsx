@@ -137,7 +137,7 @@ const ManageDay = () => {
 	);
 
 	return (
-		<Layout title="Utenti">
+		<Layout title="GIORNATE">
 			{renderModal()}
 
 			<div className={styles.manageDayHeader}>
