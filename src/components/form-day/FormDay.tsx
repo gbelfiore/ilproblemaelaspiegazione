@@ -41,6 +41,8 @@ const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 		[onAdd, onEdit, day]
 	);
 
+	const now = new Date();
+
 	return (
 		<form onSubmit={handleSubmit(onSubmit)}>
 			{day?.id && (
@@ -66,6 +68,42 @@ const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 				{errors.name && (
 					<label className="label">
 						<span className="label-text-alt text-red-500">{errors.name.message}</span>
+					</label>
+				)}
+			</div>
+
+			<div className="form-control w-full">
+				<label className="label">
+					<span className="label-text">Data</span>
+				</label>
+				<input
+					defaultValue={day?.date}
+					type="date"
+					placeholder="Type here"
+					className="input input-bordered w-full"
+					{...register("date", { required: "data obbligatoria" })}
+				/>
+				{errors.name && (
+					<label className="label">
+						<span className="label-text-alt text-red-500">{errors.date?.message}</span>
+					</label>
+				)}
+			</div>
+
+			<div className="form-control w-full">
+				<label className="label">
+					<span className="label-text">Ora di inizio</span>
+				</label>
+				<input
+					defaultValue={day?.startTime}
+					type="time"
+					placeholder="Type here"
+					className="input input-bordered w-full"
+					{...register("startTime", { required: "ora di inizio obbligatorio" })}
+				/>
+				{errors.name && (
+					<label className="label">
+						<span className="label-text-alt text-red-500">{errors.startTime?.message}</span>
 					</label>
 				)}
 			</div>

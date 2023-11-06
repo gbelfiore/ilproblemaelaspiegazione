@@ -1,5 +1,7 @@
 import { Session, User } from '@supabase/supabase-js';
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
 
 interface IUserStore {
     user: null | User;
@@ -8,11 +10,21 @@ interface IUserStore {
     logout: () => void;
 }
 
-const useUserStore = create<IUserStore>()((set) => ({
-    user: null,
-    session: null,
-    login: (user: User, session: Session) => set((state) => ({ user, session })),
-    logout: () => set((state) => ({ user: null, session: null })),
-}))
+const useUserStore = create<IUserStore>()(
+
+    persist(
+
+        (set) => ({
+            user: null,
+            session: null,
+            login: (user: User, session: Session) => set((state) => ({ user, session })),
+            logout: () => set((state) => ({ user: null, session: null })),
+        }), { name: 'user' }
+
+
+
+
+
+    ))
 
 export default useUserStore

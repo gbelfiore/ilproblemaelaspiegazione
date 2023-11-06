@@ -49,6 +49,7 @@ const ManageUser = () => {
 			return [...users, ...state.filter((u) => !users.find((u1) => u1.id == u.id))];
 		});
 		setOpenModal(false);
+		setUserEdit(null);
 	}, []);
 
 	const renderModal = useCallback(() => {

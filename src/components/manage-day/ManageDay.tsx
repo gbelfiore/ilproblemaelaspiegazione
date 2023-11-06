@@ -8,22 +8,24 @@ import classNames from "classnames";
 
 const ManageDay = () => {
 	const [openModal, setOpenModal] = useState<boolean>(false);
-	const [days, setDays] = useState<Array<IDay> | null>(null);
+	const [daysOpened, setDaysOpened] = useState<Array<IDay> | null>(null);
+	const [daysClosed, setDaysClosed] = useState<Array<IDay> | null>(null);
 	const [dayEdit, setDayEdit] = useState<IDay | null>(null);
 
-	const loadDays = useCallback(async () => {
-		const result = await getAllDay();
+	const loadDays = useCallback(async (isClosed: boolean) => {
+		const result = await getAllDay(isClosed);
 		if (!result.error) {
-			setDays(result.data);
+			isClosed ? setDaysClosed(result.data) : setDaysOpened(result.data);
 		}
 	}, []);
 
 	useEffect(() => {
-		loadDays();
+		loadDays(true);
+		loadDays(false);
 	}, [loadDays]);
 
 	const onSaveDay = useCallback((days: Array<IDay>) => {
-		setDays((state) => {
+		setDaysOpened((state) => {
 			return [...(state ?? []), ...days];
 		});
 		setOpenModal(false);
@@ -32,7 +34,7 @@ const ManageDay = () => {
 	const onDeleteDay = useCallback(async (id: number) => {
 		const deleted = await deleteDay(id);
 		if (deleted) {
-			setDays((state) => {
+			setDaysOpened((state) => {
 				return (state ?? []).filter((day) => day.id != id);
 			});
 		}
@@ -44,11 +46,12 @@ const ManageDay = () => {
 	}, []);
 
 	const onEditedDay = useCallback((days: Array<IDay>) => {
-		setDays((state) => {
+		setDaysOpened((state) => {
 			state = state ?? [];
 			return [...days, ...state.filter((u) => !days.find((u1) => u1.id == u.id))];
 		});
 		setOpenModal(false);
+		setDayEdit(null);
 	}, []);
 
 	const renderModal = useCallback(() => {
@@ -67,68 +70,89 @@ const ManageDay = () => {
 		);
 	}, [onEditedDay, onSaveDay, openModal, dayEdit]);
 
+	const renderTable = useCallback(
+		(isClosed: boolean) => {
+			const days = isClosed ? daysClosed : daysOpened;
+			return (
+				<table className="table">
+					<thead>
+						<tr>
+							<th className="w-[100px]">ID</th>
+							<td className="w-[250px]">Nome</td>
+							<td className="w-[250px]">Fanta rake ($)</td>
+							<td className="w-[250px]">Real rake (€)</td>
+							<td className="w-[250px]">Data</td>
+							<td className="w-[250px]">Inizio ore</td>
+							<td className="w-[250px]">Fine ore</td>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{days?.map((day) => {
+							return (
+								<tr key={`day_${day.id}`}>
+									<th>{day.id}</th>
+									<td>{day.name}</td>
+									<td>{day.rake ? `$ ${day.rake}` : "NON CALCOLATO"}</td>
+									<td>{day.rake ? `€ ${Math.round((day.rake / 1000 + Number.EPSILON) * 100) / 100}` : "NON CALCOLATO"}</td>
+									<td>{day.date}</td>
+									<td>{day.startTime}</td>
+									<td>{day.endTime ? day.endTime : "NON TERMINATA"}</td>
+									{/* <td>{day.surname}</td> */}
+									<td className="flex flex-row gap-2 justify-end">
+										<button className="btn btn-warning" onClick={() => onEditDay(day)}>
+											Gestisci
+										</button>
+										{!isClosed && (
+											<button className="btn btn-info" onClick={() => onEditDay(day)}>
+												Modifica
+											</button>
+										)}
+										{!isClosed && (
+											<button className="btn btn-error" onClick={() => onDeleteDay(day.id)}>
+												Cancella
+											</button>
+										)}
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+					<tfoot>
+						<tr>
+							<th className="w-[100px]">ID</th>
+							<td className="w-[250px]">Nome</td>
+							<td className="w-[250px]">Fanta rake ($)</td>
+							<td className="w-[250px]">Real rake (€)</td>
+							<td className="w-[250px]">Data</td>
+							<td className="w-[250px]">Inizio ore</td>
+							<td className="w-[250px]">Fine ore</td>
+							<th></th>
+						</tr>
+					</tfoot>
+				</table>
+			);
+		},
+		[daysClosed, daysOpened, onDeleteDay, onEditDay]
+	);
+
 	return (
 		<Layout title="Utenti">
 			{renderModal()}
+
 			<div className={styles.manageDayHeader}>
-				<button className="btn" onClick={() => setOpenModal(true)}>
+				<button className="btn" onClick={() => setOpenModal(true)} disabled={Boolean(daysOpened?.length ?? 0 > 0)}>
 					Aggiungi giornata
 				</button>
 			</div>
 
-			<table className="table">
-				<thead>
-					<tr>
-						<th className="w-[100px]">ID</th>
-						<td className="w-[250px]">Nome</td>
-						<td className="w-[250px]">Fanta rake ($)</td>
-						<td className="w-[250px]">Real rake (€)</td>
-						<td className="w-[250px]">Data</td>
-						<td className="w-[250px]">Inizio ore</td>
-						<td className="w-[250px]">Fine ore</td>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					{days?.map((day) => {
-						return (
-							<tr key={`day_${day.id}`}>
-								<th>{day.id}</th>
-								<td>{day.name}</td>
-								<td>{day.rake ? `$ ${day.rake}` : "NON CALCOLATO"}</td>
-								<td>{day.rake ? `€ ${Math.round((day.rake / 1000 + Number.EPSILON) * 100) / 100}` : "NON CALCOLATO"}</td>
-								<td>{day.date}</td>
-								<td>{day.startTime}</td>
-								<td>{day.endTime ? day.endTime : "NON TERMINATA"}</td>
-								{/* <td>{day.surname}</td> */}
-								<td className="flex flex-row gap-2 justify-end">
-									<button className="btn btn-warning" onClick={() => onEditDay(day)}>
-										Gestisci
-									</button>
-									<button className="btn btn-info" onClick={() => onEditDay(day)}>
-										Modifica
-									</button>
-									<button className="btn btn-error" onClick={() => onDeleteDay(day.id)}>
-										Cancella
-									</button>
-								</td>
-							</tr>
-						);
-					})}
-				</tbody>
-				<tfoot>
-					<tr>
-						<th className="w-[100px]">ID</th>
-						<td className="w-[250px]">Nome</td>
-						<td className="w-[250px]">Fanta rake ($)</td>
-						<td className="w-[250px]">Real rake (€)</td>
-						<td className="w-[250px]">Data</td>
-						<td className="w-[250px]">Inizio ore</td>
-						<td className="w-[250px]">Fine ore</td>
-						<th></th>
-					</tr>
-				</tfoot>
-			</table>
+			<h1>Giornate aperte</h1>
+			{renderTable(false)}
+			<br />
+			<br />
+			<br />
+			<h1>Giornate chiuse</h1>
+			{renderTable(true)}
 		</Layout>
 	);
 };
