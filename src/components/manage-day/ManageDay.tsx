@@ -58,7 +58,7 @@ const ManageDay = () => {
 		return (
 			<dialog id="dialog_day" className={classNames("modal", { "modal-open": openModal })} key={`modal_${dayEdit ? dayEdit.id : "new"}`}>
 				<div className="modal-box">
-					<h3 className="font-bold text-lg">Aggiungi giornata</h3>
+					<h3 className="font-bold text-lg">{dayEdit ? `Modifica giornata ${dayEdit.name}` : "Aggiungi giornata"}</h3>
 					<p className="py-4">
 						<FormDay day={dayEdit} onAdd={onSaveDay} onEdit={onEditedDay} onCancell={() => setOpenModal(false)} />
 					</p>

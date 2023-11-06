@@ -56,7 +56,7 @@ const ManageUser = () => {
 		return (
 			<dialog id="dialog_user" className={classNames("modal", { "modal-open": openModal })} key={`modal_${userEdit ? userEdit.id : "new"}`}>
 				<div className="modal-box">
-					<h3 className="font-bold text-lg">Aggiungi utente</h3>
+					<h3 className="font-bold text-lg">{userEdit ? `Modifica utente ${userEdit.surname} ${userEdit.name}` : "Aggiungi utente"}</h3>
 					<p className="py-4">
 						<FormUser user={userEdit} onAdd={onSaveUser} onEdit={onEditedUser} onCancell={() => setOpenModal(false)} />
 					</p>
