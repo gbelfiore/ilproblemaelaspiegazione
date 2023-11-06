@@ -4,6 +4,11 @@ interface IUser {
     surname: string;
 }
 
+interface IUserLogin {
+    email: string;
+    password: string;
+}
+
 interface IDay {
     id: number;
     name: string;
@@ -13,4 +18,4 @@ interface IDay {
     date: string;
 }
 
-export type { IUser, IDay }
+export type { IUser, IUserLogin, IDay }

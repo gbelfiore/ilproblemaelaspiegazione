@@ -9,12 +9,15 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@supabase/auth-ui-react": "^0.4.6",
+		"@supabase/auth-ui-shared": "^0.1.8",
 		"@supabase/supabase-js": "^2.38.4",
 		"classnames": "^2.3.2",
 		"next": "13.5.6",
 		"react": "^18",
 		"react-dom": "^18",
-		"react-hook-form": "^7.48.2"
+		"react-hook-form": "^7.48.2",
+		"zustand": "^4.4.6"
 	},
 	"devDependencies": {
 		"@types/node": "^20",

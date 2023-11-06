@@ -1,5 +1,6 @@
+import { AuthTokenResponse } from "@supabase/supabase-js";
 import clientDB from "./clientDB";
-import { IUser } from "@/types/types";
+import { IUser, IUserLogin } from "@/types/types";
 
 const getAllUser = async (): Promise<{ data: Array<IUser>, error: any }> => {
     const result = await clientDB.from("user").select("*");
@@ -17,8 +18,13 @@ const deleteUser = async (id: number): Promise<boolean> => {
 }
 
 const editUser = async (user: IUser): Promise<{ data: Array<IUser>, error: any }> => {
-    const result = await clientDB.from('user').update(user).eq('id', user.id).select()
+    const result = await clientDB.from('user').update({ name: user.name, surname: user.surname }).eq('id', user.id).select()
     return { data: result.data as Array<IUser>, error: result.error }
 }
 
-export { getAllUser, insertUser, deleteUser, editUser }
+const loginUser = async (data: IUserLogin): Promise<AuthTokenResponse> => {
+    const result = await clientDB.auth.signInWithPassword({ email: data.email, password: data.password })
+    return result
+}
+
+export { getAllUser, insertUser, deleteUser, editUser, loginUser }
