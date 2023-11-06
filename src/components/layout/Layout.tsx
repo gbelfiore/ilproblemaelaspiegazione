@@ -23,10 +23,10 @@ const Layout = ({ title, children }: ILayoutProps) => {
 						<div className="flex-none">
 							<ul className="menu menu-horizontal px-1">
 								<li>
-									<a onClick={() => router.push("days")}>Giornate</a>
+									<a onClick={() => router.push("/days")}>Giornate</a>
 								</li>
 								<li>
-									<a onClick={() => router.push("users")}>Utenti</a>
+									<a onClick={() => router.push("/users")}>Utenti</a>
 								</li>
 							</ul>
 						</div>

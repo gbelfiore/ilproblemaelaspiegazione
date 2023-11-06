@@ -5,8 +5,11 @@ import Layout from "../layout/Layout";
 import styles from "./ManageDay.module.css";
 import FormDay from "../form-day/FormDay";
 import classNames from "classnames";
+import { useRouter } from "next/router";
 
 const ManageDay = () => {
+	const router = useRouter();
+
 	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [daysOpened, setDaysOpened] = useState<Array<IDay> | null>(null);
 	const [daysClosed, setDaysClosed] = useState<Array<IDay> | null>(null);
@@ -84,6 +87,7 @@ const ManageDay = () => {
 							<td className="w-[250px]">Data</td>
 							<td className="w-[250px]">Inizio ore</td>
 							<td className="w-[250px]">Fine ore</td>
+							<td className="w-[250px]"># giocatori</td>
 							<th></th>
 						</tr>
 					</thead>
@@ -98,18 +102,19 @@ const ManageDay = () => {
 									<td>{day.date}</td>
 									<td>{day.startTime}</td>
 									<td>{day.endTime ? day.endTime : "NON TERMINATA"}</td>
+									<td>{day.userDay?.length}</td>
 									{/* <td>{day.surname}</td> */}
-									<td className="flex flex-row gap-2 justify-end">
-										<button className="btn btn-warning" onClick={() => onEditDay(day)}>
+									<td className="flex flex-col gap-2 justify-end">
+										<button className="btn btn-warning btn-sm" onClick={() => router.push(`/days/${day.id}`)}>
 											Gestisci
 										</button>
 										{!isClosed && (
-											<button className="btn btn-info" onClick={() => onEditDay(day)}>
+											<button className="btn btn-info btn-sm" onClick={() => onEditDay(day)}>
 												Modifica
 											</button>
 										)}
 										{!isClosed && (
-											<button className="btn btn-error" onClick={() => onDeleteDay(day.id)}>
+											<button className="btn btn-error btn-sm" onClick={() => onDeleteDay(day.id)}>
 												Cancella
 											</button>
 										)}
@@ -118,18 +123,6 @@ const ManageDay = () => {
 							);
 						})}
 					</tbody>
-					<tfoot>
-						<tr>
-							<th className="w-[100px]">ID</th>
-							<td className="w-[250px]">Nome</td>
-							<td className="w-[250px]">Fanta rake ($)</td>
-							<td className="w-[250px]">Real rake (€)</td>
-							<td className="w-[250px]">Data</td>
-							<td className="w-[250px]">Inizio ore</td>
-							<td className="w-[250px]">Fine ore</td>
-							<th></th>
-						</tr>
-					</tfoot>
 				</table>
 			);
 		},

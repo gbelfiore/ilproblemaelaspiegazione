@@ -2,6 +2,7 @@ interface IUser {
     id: number;
     name: string;
     surname: string;
+    userDay?: Array<IUserDay>
 }
 
 interface IUserLogin {
@@ -16,6 +17,20 @@ interface IDay {
     startTime: string;
     endTime: string;
     date: string;
+    userDay?: Array<IUserDay>
 }
 
-export type { IUser, IUserLogin, IDay }
+interface IUserDay {
+    id: number;
+    userId: number;
+    dayId: number;
+    moneyIn: number;
+    moneyOut: number;
+    timeIn: string;
+    timeOut: string;
+    rake: number;
+    user?: IUser;
+    day?: IDay;
+}
+
+export type { IUser, IUserLogin, IDay, IUserDay }

@@ -3,7 +3,12 @@ import clientDB from "./clientDB";
 import { IUser, IUserLogin } from "@/types/types";
 
 const getAllUser = async (): Promise<{ data: Array<IUser>, error: any }> => {
-    const result = await clientDB.from("user").select("*");
+    const result = await clientDB.from("user").select("*, userDay(*)");
+    return { data: result.data as Array<IUser>, error: result.error }
+}
+
+const getAllUserNotInGame = async (userInGame: Array<number>): Promise<{ data: Array<IUser>, error: any }> => {
+    const result = await clientDB.from("user").select("*").not("id", "in", `(${userInGame.join(",")})`);
     return { data: result.data as Array<IUser>, error: result.error }
 }
 
@@ -27,4 +32,4 @@ const loginUser = async (data: IUserLogin): Promise<AuthTokenResponse> => {
     return result
 }
 
-export { getAllUser, insertUser, deleteUser, editUser, loginUser }
+export { getAllUser, getAllUserNotInGame, insertUser, deleteUser, editUser, loginUser }

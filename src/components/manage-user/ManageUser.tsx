@@ -83,21 +83,33 @@ const ManageUser = () => {
 						<th className="w-[100px]">ID</th>
 						<td className="w-[250px]">Nome</td>
 						<td className="w-[250px]">Cognome</td>
+						<td className="w-[250px]"># Partite</td>
+						<td className="w-[250px]">Money In</td>
+						<td className="w-[250px]">Money Out</td>
+						<td className="w-[250px]">Andamento giocatore</td>
 						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 					{users?.map((user) => {
+						const moneyIn = user.userDay?.reduce((partialSum, elem) => partialSum + elem.moneyIn, 0) ?? 0;
+						const moneyOut = user.userDay?.reduce((partialSum, elem) => partialSum + elem.moneyOut, 0) ?? 0;
 						return (
 							<tr key={`user_${user.id}`}>
 								<th>{user.id}</th>
 								<td>{user.name}</td>
 								<td>{user.surname}</td>
-								<td className="flex flex-row gap-2 justify-end">
-									<button className="btn btn-info" onClick={() => onEditUser(user)}>
+								<td>{user.userDay?.length}</td>
+								<td>{moneyIn}</td>
+								<td>{moneyOut}</td>
+								<td className={classNames({ "text-green-600": moneyOut - moneyIn > 0, "text-red-600": moneyOut - moneyIn < 0 })}>
+									{moneyOut - moneyIn}
+								</td>
+								<td className="flex flex-col gap-2 justify-end">
+									<button className="btn btn-info btn-sm" onClick={() => onEditUser(user)}>
 										Modifica
 									</button>
-									<button className="btn btn-error" onClick={() => onDeleteUser(user.id)}>
+									<button className="btn btn-error btn-sm" onClick={() => onDeleteUser(user.id)} disabled={Boolean(user.userDay?.length ?? 0 > 0)}>
 										Cancella
 									</button>
 								</td>
@@ -105,14 +117,6 @@ const ManageUser = () => {
 						);
 					})}
 				</tbody>
-				<tfoot>
-					<tr>
-						<th>ID</th>
-						<td>Nome</td>
-						<td>Cognome</td>
-						<th></th>
-					</tr>
-				</tfoot>
 			</table>
 		</Layout>
 	);
