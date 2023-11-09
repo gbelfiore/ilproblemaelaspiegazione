@@ -49,7 +49,7 @@ const ManageDayUserItemOut = ({ user, day, onAddUserInDay }: IManageDayUserItemO
 			<td>
 				<div className="form-control w-full">
 					<input
-						type="time"
+						type="datetime-local"
 						defaultValue={defaultValues.timeIn ?? ""}
 						placeholder="inserisci l'orario di ingresso"
 						className="input input-bordered w-full"

@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 
 interface IFormUser {
 	user?: IUser | null;
-	onAdd: (user: Array<IUser>) => void;
-	onEdit: (user: Array<IUser>) => void;
+	onAdd?: (user: IUser) => void;
+	onEdit?: (user: IUser) => void;
 	onCancell: () => void;
 }
 
@@ -14,7 +14,6 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 	const {
 		register,
 		handleSubmit,
-		watch,
 		formState: { errors },
 	} = useForm<IUser>({
 		defaultValues: user ?? undefined,
@@ -24,14 +23,14 @@ const FormUser = ({ user, onAdd, onEdit, onCancell }: IFormUser) => {
 		async (data: IUser) => {
 			if (!user) {
 				const result = await insertUser(data);
-				if (!result.error) {
+				if (!result.error && onAdd) {
 					onAdd(result.data);
 				} else {
 					alert(JSON.stringify(result.error));
 				}
 			} else {
 				const result = await editUser(data);
-				if (!result.error) {
+				if (!result.error && onEdit) {
 					onEdit(result.data);
 				} else {
 					alert(JSON.stringify(result.error));

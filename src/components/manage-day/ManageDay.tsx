@@ -6,14 +6,14 @@ import styles from "./ManageDay.module.css";
 import FormDay from "../form-day/FormDay";
 import classNames from "classnames";
 import { useRouter } from "next/router";
+import moment from "moment";
+import useModalState from "@/zustand/modalState";
 
 const ManageDay = () => {
 	const router = useRouter();
 
-	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [daysOpened, setDaysOpened] = useState<Array<IDay> | null>(null);
 	const [daysClosed, setDaysClosed] = useState<Array<IDay> | null>(null);
-	const [dayEdit, setDayEdit] = useState<IDay | null>(null);
 
 	const loadDays = useCallback(async (isClosed: boolean) => {
 		const result = await getAllDay(isClosed);
@@ -27,11 +27,11 @@ const ManageDay = () => {
 		loadDays(false);
 	}, [loadDays]);
 
-	const onSaveDay = useCallback((days: Array<IDay>) => {
+	const onSaveDay = useCallback((day: IDay) => {
 		setDaysOpened((state) => {
-			return [...(state ?? []), ...days];
+			return [day, ...(state ?? [])];
 		});
-		setOpenModal(false);
+		useModalState.getState().closeModal(`modal_new_day`);
 	}, []);
 
 	const onDeleteDay = useCallback(async (id: number) => {
@@ -43,35 +43,32 @@ const ManageDay = () => {
 		}
 	}, []);
 
-	const onEditDay = useCallback((day: IDay) => {
-		setDayEdit(day);
-		setOpenModal(true);
-	}, []);
-
-	const onEditedDay = useCallback((days: Array<IDay>) => {
+	const onEditedDay = useCallback((day: IDay) => {
 		setDaysOpened((state) => {
 			state = state ?? [];
-			return [...days, ...state.filter((u) => !days.find((u1) => u1.id == u.id))];
+			return [day, ...state.filter((u) => day.id !== u.id)];
 		});
-		setOpenModal(false);
-		setDayEdit(null);
+		useModalState.getState().closeModal(`modal_edit_day_${day.id}`);
 	}, []);
 
-	const renderModal = useCallback(() => {
-		return (
-			<dialog id="dialog_day" className={classNames("modal", { "modal-open": openModal })} key={`modal_${dayEdit ? dayEdit.id : "new"}`}>
-				<div className="modal-box">
-					<h3 className="font-bold text-lg">{dayEdit ? `Modifica giornata ${dayEdit.name}` : "Aggiungi giornata"}</h3>
-					<p className="py-4">
-						<FormDay day={dayEdit} onAdd={onSaveDay} onEdit={onEditedDay} onCancell={() => setOpenModal(false)} />
-					</p>
-				</div>
-				<form method="dialog" className="modal-backdrop">
-					<button>close</button>
-				</form>
-			</dialog>
-		);
-	}, [onEditedDay, onSaveDay, openModal, dayEdit]);
+	const onEditDay = useCallback(
+		(day: IDay) => {
+			const key = `modal_edit_day_${day.id}`;
+			useModalState.getState().openModal(key, {
+				title: `Modifica giornata ${day.name}`,
+				body: <FormDay day={day} onEdit={onEditedDay} onCancell={() => useModalState.getState().closeModal(key)} />,
+			});
+		},
+		[onEditedDay]
+	);
+
+	const onAddDay = useCallback(() => {
+		const key = `modal_new_day`;
+		useModalState.getState().openModal(key, {
+			title: `Aggiungi giornata`,
+			body: <FormDay onAdd={onSaveDay} onCancell={() => useModalState.getState().closeModal(key)} />,
+		});
+	}, [onSaveDay]);
 
 	const renderTable = useCallback(
 		(isClosed: boolean) => {
@@ -84,9 +81,8 @@ const ManageDay = () => {
 							<td className="w-[250px]">Nome</td>
 							<td className="w-[250px]">Fanta rake ($)</td>
 							<td className="w-[250px]">Real rake (€)</td>
-							<td className="w-[250px]">Data</td>
-							<td className="w-[250px]">Inizio ore</td>
-							<td className="w-[250px]">Fine ore</td>
+							<td className="w-[250px]">Inizio</td>
+							<td className="w-[250px]">Fine</td>
 							<td className="w-[250px]"># giocatori</td>
 							<th></th>
 						</tr>
@@ -99,9 +95,8 @@ const ManageDay = () => {
 									<td>{day.name}</td>
 									<td>{day.rake ? `$ ${day.rake}` : "NON CALCOLATO"}</td>
 									<td>{day.rake ? `€ ${Math.round((day.rake / 1000 + Number.EPSILON) * 100) / 100}` : "NON CALCOLATO"}</td>
-									<td>{day.date}</td>
-									<td>{day.startTime}</td>
-									<td>{day.endTime ? day.endTime : "NON TERMINATA"}</td>
+									<td>{moment(day.startTime).format("DD-MM-YYYY HH:mm")}</td>
+									<td>{day.endTime ? moment(day.endTime).format("DD-MM-YYYY HH:mm") : "NON TERMINATA"}</td>
 									<td>{day.userDay?.length}</td>
 									{/* <td>{day.surname}</td> */}
 									<td className="flex flex-col gap-2 justify-end">
@@ -126,15 +121,13 @@ const ManageDay = () => {
 				</table>
 			);
 		},
-		[daysClosed, daysOpened, onDeleteDay, onEditDay]
+		[daysClosed, daysOpened, onDeleteDay, onEditDay, router]
 	);
 
 	return (
 		<Layout title="GIORNATE">
-			{renderModal()}
-
 			<div className={styles.manageDayHeader}>
-				<button className="btn" onClick={() => setOpenModal(true)} disabled={Boolean(daysOpened?.length ?? 0 > 0)}>
+				<button className="btn" onClick={onAddDay} disabled={Boolean(daysOpened?.length ?? 0 > 0)}>
 					Aggiungi giornata
 				</button>
 			</div>

@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 
 interface IFormDay {
 	day?: IDay | null;
-	onAdd: (day: Array<IDay>) => void;
-	onEdit: (day: Array<IDay>) => void;
+	onAdd?: (day: IDay) => void;
+	onEdit?: (day: IDay) => void;
 	onCancell: () => void;
 }
 
@@ -24,14 +24,14 @@ const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 		async (data: IDay) => {
 			if (!day) {
 				const result = await insertDay(data);
-				if (!result.error) {
+				if (!result.error && onAdd) {
 					onAdd(result.data);
 				} else {
 					alert(JSON.stringify(result.error));
 				}
 			} else {
 				const result = await editDay(data);
-				if (!result.error) {
+				if (!result.error && onEdit) {
 					onEdit(result.data);
 				} else {
 					alert(JSON.stringify(result.error));
@@ -74,29 +74,11 @@ const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 
 			<div className="form-control w-full">
 				<label className="label">
-					<span className="label-text">Data</span>
-				</label>
-				<input
-					defaultValue={day?.date}
-					type="date"
-					placeholder="Type here"
-					className="input input-bordered w-full"
-					{...register("date", { required: "data obbligatoria" })}
-				/>
-				{errors.name && (
-					<label className="label">
-						<span className="label-text-alt text-red-500">{errors.date?.message}</span>
-					</label>
-				)}
-			</div>
-
-			<div className="form-control w-full">
-				<label className="label">
 					<span className="label-text">Ora di inizio</span>
 				</label>
 				<input
 					defaultValue={day?.startTime}
-					type="time"
+					type="datetime-local"
 					placeholder="Type here"
 					className="input input-bordered w-full"
 					{...register("startTime", { required: "ora di inizio obbligatorio" })}
@@ -107,24 +89,6 @@ const FormDay = ({ day, onAdd, onEdit, onCancell }: IFormDay) => {
 					</label>
 				)}
 			</div>
-
-			{/* <div className="form-control w-full ">
-				<label className="label">
-					<span className="label-text">Cognome</span>
-				</label>
-				<input
-					defaultValue={day?.surname}
-					type="text"
-					placeholder="Type here"
-					className="input input-bordered w-full"
-					{...register("surname", { required: "cognome obbligatorio" })}
-				/>
-				{errors.surname && (
-					<label className="label">
-						<span className="label-text-alt text-red-500">{errors.surname.message}</span>
-					</label>
-				)}
-			</div> */}
 
 			<div className="mt-4 text-right flex flex-row gap-2 justify-end">
 				<input className="btn" type="submit" value={"salva"} />

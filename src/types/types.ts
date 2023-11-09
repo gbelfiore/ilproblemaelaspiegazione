@@ -16,7 +16,6 @@ interface IDay {
     rake: number;
     startTime: string;
     endTime: string;
-    date: string;
     userDay?: Array<IUserDay>
 }
 

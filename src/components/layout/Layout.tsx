@@ -3,6 +3,8 @@ import styles from "./Layout.module.css";
 import { useRouter } from "next/router";
 import Login from "../login/Login";
 import useUserStore from "@/zustand/userState";
+import useModalState from "@/zustand/modalState";
+import Modal from "../modal/Modal";
 
 interface ILayoutProps {
 	title: string;
@@ -10,6 +12,7 @@ interface ILayoutProps {
 }
 const Layout = ({ title, children }: ILayoutProps) => {
 	const router = useRouter();
+	const modals = useModalState((state) => state.modals);
 
 	return (
 		<Login>
@@ -55,6 +58,12 @@ const Layout = ({ title, children }: ILayoutProps) => {
 					</div>
 				</div>
 				<div className={styles.layoutBody}>{children}</div>
+
+				{Object.keys(modals).map((key) => {
+					console.group(key);
+					const modal = modals[key];
+					return <Modal key={key} title={modal.title} body={modal.body} actions={modal.actions} />;
+				})}
 			</div>
 		</Login>
 	);

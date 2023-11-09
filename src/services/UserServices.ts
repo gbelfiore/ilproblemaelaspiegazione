@@ -12,9 +12,9 @@ const getAllUserNotInGame = async (userInGame: Array<number>): Promise<{ data: A
     return { data: result.data as Array<IUser>, error: result.error }
 }
 
-const insertUser = async (user: IUser): Promise<{ data: Array<IUser>, error: any }> => {
+const insertUser = async (user: IUser): Promise<{ data: IUser, error: any }> => {
     const result = await clientDB.from('user').insert([{ name: user.name, surname: user.surname }]).select("*")
-    return { data: result.data as Array<IUser>, error: result.error }
+    return { data: result.data?.[0] as IUser, error: result.error }
 }
 
 const deleteUser = async (id: number): Promise<boolean> => {
@@ -22,9 +22,9 @@ const deleteUser = async (id: number): Promise<boolean> => {
     return !result.error
 }
 
-const editUser = async (user: IUser): Promise<{ data: Array<IUser>, error: any }> => {
+const editUser = async (user: IUser): Promise<{ data: IUser, error: any }> => {
     const result = await clientDB.from('user').update({ name: user.name, surname: user.surname }).eq('id', user.id).select()
-    return { data: result.data as Array<IUser>, error: result.error }
+    return { data: result.data?.[0] as IUser, error: result.error }
 }
 
 const loginUser = async (data: IUserLogin): Promise<AuthTokenResponse> => {

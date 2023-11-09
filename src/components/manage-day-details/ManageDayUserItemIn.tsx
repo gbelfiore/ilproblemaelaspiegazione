@@ -1,22 +1,22 @@
 import { updateMoneyIn, updateMoneyOut } from "@/services/UserDayServices";
 import { IUserDay } from "@/types/types";
+import moment from "moment";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 
-interface IManageDayUserItemProps {
+interface IManageDayUserItemInProps {
 	userDay: IUserDay;
+	onExitUserToDay: () => void;
 }
 
-const ManageDayUserItem = ({ userDay: userDayProps }: IManageDayUserItemProps) => {
+const ManageDayUserItemIn = ({ userDay: userDayProps, onExitUserToDay }: IManageDayUserItemInProps) => {
 	const [userDay, setUserDay] = useState<IUserDay>(userDayProps);
 	const { user } = userDay;
 
 	const defaultValues = { moneyOut: 0, timeOut: "" };
 	const {
-		setValue,
 		register,
 		handleSubmit,
-		watch,
 		formState: { errors },
 	} = useForm<{ moneyOut: number; timeOut: string }>({
 		defaultValues: defaultValues,
@@ -43,15 +43,16 @@ const ManageDayUserItem = ({ userDay: userDayProps }: IManageDayUserItemProps) =
 			const result = await updateMoneyOut(userDay.id, data.moneyOut, data.timeOut);
 			if (!result.error) {
 				setUserDay(result.data);
+				onExitUserToDay();
 			}
 		},
-		[userDay]
+		[onExitUserToDay, userDay]
 	);
 
 	return (
 		<tr>
 			<td>{`${user?.surname} ${user?.name}`}</td>
-			<td>{userDay.timeIn}</td>
+			<td>{moment(userDay.timeIn).format("DD-MM-YYYY HH:mm")}</td>
 			<td>
 				{userDay.moneyOut == null && (
 					<>
@@ -70,7 +71,7 @@ const ManageDayUserItem = ({ userDay: userDayProps }: IManageDayUserItemProps) =
 				{!userDay.timeOut && (
 					<div className="form-control w-full">
 						<input
-							type="time"
+							type="datetime-local"
 							placeholder="Type here on close game"
 							className="input input-bordered w-full max-w-xs"
 							{...register("timeOut", { required: "orario di uscita obbligatorio" })}
@@ -82,7 +83,7 @@ const ManageDayUserItem = ({ userDay: userDayProps }: IManageDayUserItemProps) =
 						)}
 					</div>
 				)}
-				{userDay.timeOut && userDay.timeOut}
+				{userDay.timeOut && moment(userDay.timeOut).format("DD-MM-YYYY HH:mm")}
 			</td>
 			<td>
 				{userDay.moneyOut == null && (
@@ -112,4 +113,4 @@ const ManageDayUserItem = ({ userDay: userDayProps }: IManageDayUserItemProps) =
 	);
 };
 
-export default ManageDayUserItem;
+export default ManageDayUserItemIn;

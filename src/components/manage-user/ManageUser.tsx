@@ -5,11 +5,10 @@ import Layout from "../layout/Layout";
 import styles from "./ManageUser.module.css";
 import FormUser from "../form-user/FormUser";
 import classNames from "classnames";
+import useModalState from "@/zustand/modalState";
 
 const ManageUser = () => {
-	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [users, setUsers] = useState<Array<IUser> | null>(null);
-	const [userEdit, setUserEdit] = useState<IUser | null>(null);
 
 	const loadUsers = useCallback(async () => {
 		const result = await getAllUser();
@@ -22,11 +21,11 @@ const ManageUser = () => {
 		loadUsers();
 	}, [loadUsers]);
 
-	const onSaveUser = useCallback((users: Array<IUser>) => {
+	const onSaveUser = useCallback((user: IUser) => {
 		setUsers((state) => {
-			return [...(state ?? []), ...users];
+			return [user, ...(state ?? [])];
 		});
-		setOpenModal(false);
+		useModalState.getState().closeModal("modal_new_user");
 	}, []);
 
 	const onDeleteUser = useCallback(async (id: number) => {
@@ -38,41 +37,37 @@ const ManageUser = () => {
 		}
 	}, []);
 
-	const onEditUser = useCallback((user: IUser) => {
-		setUserEdit(user);
-		setOpenModal(true);
-	}, []);
-
-	const onEditedUser = useCallback((users: Array<IUser>) => {
+	const onEditedUser = useCallback((user: IUser) => {
 		setUsers((state) => {
 			state = state ?? [];
-			return [...users, ...state.filter((u) => !users.find((u1) => u1.id == u.id))];
+			return [user, ...state.filter((u) => user.id != u.id)];
 		});
-		setOpenModal(false);
-		setUserEdit(null);
+		useModalState.getState().closeModal(`modal_edit_user_${user.id}`);
 	}, []);
 
-	const renderModal = useCallback(() => {
-		return (
-			<dialog id="dialog_user" className={classNames("modal", { "modal-open": openModal })} key={`modal_${userEdit ? userEdit.id : "new"}`}>
-				<div className="modal-box">
-					<h3 className="font-bold text-lg">{userEdit ? `Modifica utente ${userEdit.surname} ${userEdit.name}` : "Aggiungi utente"}</h3>
-					<p className="py-4">
-						<FormUser user={userEdit} onAdd={onSaveUser} onEdit={onEditedUser} onCancell={() => setOpenModal(false)} />
-					</p>
-				</div>
-				<form method="dialog" className="modal-backdrop">
-					<button>close</button>
-				</form>
-			</dialog>
-		);
-	}, [onEditedUser, onSaveUser, openModal, userEdit]);
+	const onEditUser = useCallback(
+		(user: IUser) => {
+			const key = `modal_edit_user_${user.id}`;
+			useModalState.getState().openModal(key, {
+				title: `Modifica utente ${user.surname} ${user.name}`,
+				body: <FormUser user={user} onEdit={onEditedUser} onCancell={() => useModalState.getState().closeModal(key)} />,
+			});
+		},
+		[onEditedUser]
+	);
+
+	const onAddUser = useCallback(() => {
+		const key = `modal_new_user`;
+		useModalState.getState().openModal(key, {
+			title: `Aggiungi utente `,
+			body: <FormUser onAdd={onSaveUser} onCancell={() => useModalState.getState().closeModal(key)} />,
+		});
+	}, [onSaveUser]);
 
 	return (
 		<Layout title="Utenti">
-			{renderModal()}
 			<div className={styles.manageUserHeader}>
-				<button className="btn" onClick={() => setOpenModal(true)}>
+				<button className="btn" onClick={onAddUser}>
 					Aggiungi utente
 				</button>
 			</div>

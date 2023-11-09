@@ -21,4 +21,5 @@ const updateMoneyOut = async (userDayId: number, moneyOut: number, timeOut: stri
 
 
 
+
 export { addUserOnDay, updateMoneyIn, updateMoneyOut }

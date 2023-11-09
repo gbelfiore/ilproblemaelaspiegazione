@@ -3,6 +3,6 @@
 
 .manageDayDetailsHeader {
 	@apply w-full;
-	@apply flex flex-row justify-end;
+	@apply flex flex-row justify-between gap-2;
 	@apply p-1;
 }
