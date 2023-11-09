@@ -1,8 +1,10 @@
 import { updateMoneyIn, updateMoneyOut } from "@/services/UserDayServices";
 import { IUserDay } from "@/types/types";
-import moment from "moment";
-import { useCallback, useState } from "react";
+import { formatData } from "@/utils/DateUitls";
+import { fantaMoneyToEuro, toFixed } from "@/utils/MoneyUtils";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import DataElement from "../data-element/DataElement";
 
 interface IManageDayUserItemInProps {
 	userDay: IUserDay;
@@ -49,10 +51,16 @@ const ManageDayUserItemIn = ({ userDay: userDayProps, onExitUserToDay }: IManage
 		[onExitUserToDay, userDay]
 	);
 
+	const outcome = useMemo(() => {
+		return userDay.moneyOut - (userDay.moneyIn - userDay.rakeShare);
+	}, [userDay]);
+
 	return (
 		<tr>
 			<td>{`${user?.surname} ${user?.name}`}</td>
-			<td>{moment(userDay.timeIn).format("DD-MM-YYYY HH:mm")}</td>
+			<td>
+				<DataElement data={userDay.timeIn} />
+			</td>
 			<td>
 				{userDay.moneyOut == null && (
 					<>
@@ -65,7 +73,12 @@ const ManageDayUserItemIn = ({ userDay: userDayProps, onExitUserToDay }: IManage
 						</button>
 					</>
 				)}
-				{userDay.moneyOut != null && userDay.moneyIn}
+				{userDay.moneyOut != null && (
+					<div className="flex flex-col gap-2 items-center">
+						<span className="text-orange-500">{`${userDay.moneyIn}¥`}</span>
+						<span className="text-violet-500">{`${fantaMoneyToEuro(userDay.moneyIn)}€`}</span>
+					</div>
+				)}
 			</td>
 			<td>
 				{!userDay.timeOut && (
@@ -83,7 +96,7 @@ const ManageDayUserItemIn = ({ userDay: userDayProps, onExitUserToDay }: IManage
 						)}
 					</div>
 				)}
-				{userDay.timeOut && moment(userDay.timeOut).format("DD-MM-YYYY HH:mm")}
+				{userDay.timeOut && <DataElement data={userDay.timeOut} />}
 			</td>
 			<td>
 				{userDay.moneyOut == null && (
@@ -101,12 +114,39 @@ const ManageDayUserItemIn = ({ userDay: userDayProps, onExitUserToDay }: IManage
 						)}
 					</div>
 				)}
-				{userDay.moneyOut != null && userDay.moneyOut}
+				{userDay.moneyOut != null && (
+					<div className="flex flex-col gap-2 items-center">
+						<span className="text-orange-500">{`${userDay.moneyOut}¥`}</span>
+						<span className="text-violet-500">{`${fantaMoneyToEuro(userDay.moneyOut)}€`}</span>
+					</div>
+				)}
 			</td>
-			<td>{userDay.moneyOut != null ? userDay.moneyOut - userDay.moneyIn : "-"}</td>
+
+			<td>
+				{userDay.rakeShare != null && (
+					<div className="flex flex-col gap-2 items-center">
+						<span className="text-orange-500">{`${toFixed(userDay.rakeShare)}¥`}</span>
+						<span className="text-violet-500">{`${fantaMoneyToEuro(userDay.rakeShare)}€`}</span>
+					</div>
+				)}
+			</td>
+
+			<td>
+				{userDay.moneyOut != null && userDay.rakeShare != null && (
+					<div className="flex flex-col gap-2 items-center">
+						<span className="text-orange-500">{`${toFixed(outcome)}¥`}</span>
+						<span className="text-violet-500">{`${fantaMoneyToEuro(outcome)}€`}</span>
+					</div>
+				)}
+			</td>
+
+			<td className="text-center">
+				{outcome > 0 ? <span className="text-green-500">VINCENTE</span> : <span className="text-red-500">PERDENTE</span>}
+			</td>
+
 			<td>
 				<button className="btn btn-sm btn-secondary" onClick={handleSubmit(addUserOutGame)} disabled={Boolean(userDay.timeOut)}>
-					Esce dalla partita
+					Esce
 				</button>
 			</td>
 		</tr>

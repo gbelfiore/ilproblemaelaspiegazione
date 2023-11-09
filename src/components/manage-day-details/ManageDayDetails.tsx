@@ -9,6 +9,9 @@ import { getAllUserNotInGame } from "@/services/UserServices";
 import ManageDayUserItemOut from "./ManageDayUserItemOut";
 import { useForm } from "react-hook-form";
 import moment from "moment";
+import { updateShareRake } from "@/services/UserDayServices";
+import { formatData } from "@/utils/DateUitls";
+import { fantaMoneyToEuro } from "@/utils/MoneyUtils";
 
 interface ImanageDayDetailsProps {
 	dayId: string;
@@ -32,7 +35,7 @@ const ManageDayDetails = ({ dayId }: ImanageDayDetailsProps) => {
 		if (dayId) {
 			const result = await getDayById(parseInt(dayId));
 			if (!result.error) {
-				setDay(result.data);
+				setDay({ ...result.data });
 			}
 		}
 	}, [dayId]);
@@ -69,18 +72,27 @@ const ManageDayDetails = ({ dayId }: ImanageDayDetailsProps) => {
 					<thead>
 						<tr>
 							<td className="w-[250px]">Giocatore</td>
-							<td className="w-[250px]">Inizio</td>
-							<td className="w-[250px]">Money In</td>
-							<td className="w-[250px]">Fine</td>
-							<td className="w-[250px]">Money Out</td>
-							<td className="w-[250px]">Esito</td>
+							<td className="text-center w-[150px]">Inizio</td>
+							<td className="text-center w-[150px]">Money In</td>
+							<td className="text-center w-[150px]">Fine</td>
+							<td className="text-center w-[150px]">Money Out</td>
+							<td className="text-center w-[150px]">Quota rake</td>
+							<td className="text-center w-[150px]">Esito</td>
+							<td className="text-center w-[150px]">Dare/Avere</td>
+							{/* <td className="w-[250px]">Esito (€)</td> */}
 							<th></th>
 						</tr>
 					</thead>
 					<tbody>
 						{day?.userDay?.map((userDay) => {
 							const user = userDay.user;
-							return <ManageDayUserItemIn key={`userDay_${userDay.id}`} userDay={userDay} onExitUserToDay={loadDay}></ManageDayUserItemIn>;
+							return (
+								<ManageDayUserItemIn
+									key={`userDay_${userDay.id}_${userDay.rakeShare}`}
+									userDay={userDay}
+									onExitUserToDay={loadDay}
+								></ManageDayUserItemIn>
+							);
 						})}
 					</tbody>
 				</table>
@@ -90,45 +102,58 @@ const ManageDayDetails = ({ dayId }: ImanageDayDetailsProps) => {
 
 	const renderTableUserOutGame = useCallback(() => {
 		if (!day) return <div>loading</div>;
-		if (day.endTime)
+		if (!day.endTime)
 			return (
-				<div className="alert alert-info">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-					</svg>
-					<span>{`Partita terminata il ${moment(day.endTime).format("DD-MM-YYYY HH:mm")}`}</span>
-				</div>
+				<>
+					<h1 className="text-primary">Giocatori disponibili</h1>
+					<table className="table">
+						<thead>
+							<tr>
+								<td className="w-[250px]">Giocatore</td>
+								<td className="w-[250px]">Inizio</td>
+								<td className="w-[250px]">Money In</td>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{users?.map((user) => {
+								return <ManageDayUserItemOut key={`user_${user.id}`} user={user} day={day} onAddUserInDay={loadDay} />;
+							})}
+						</tbody>
+					</table>
+				</>
 			);
-		return (
-			<>
-				<h1 className="text-primary">Giocatori disponibili</h1>
-				<table className="table">
-					<thead>
-						<tr>
-							<td className="w-[250px]">Giocatore</td>
-							<td className="w-[250px]">Inizio</td>
-							<td className="w-[250px]">Money In</td>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{users?.map((user) => {
-							return <ManageDayUserItemOut key={`user_${user.id}`} user={user} day={day} onAddUserInDay={loadDay} />;
-						})}
-					</tbody>
-				</table>
-			</>
-		);
+		return <></>;
 	}, [day, loadDay, users]);
 
 	const onCloseDay = useCallback(
 		async (data: { endTime: string }) => {
-			if (!day) return null;
+			if (!day || !day.userDay) return null;
 
-			const moneyInTotal = day.userDay?.reduce((acc, ud) => acc + ud.moneyIn, 0) ?? 0;
-			const moneyOutTotal = day.userDay?.reduce((acc, ud) => acc + ud.moneyOut, 0) ?? 0;
+			const moneyInTotal = day.userDay.reduce((acc, ud) => acc + ud.moneyIn, 0);
+			const moneyOutTotal = day.userDay.reduce((acc, ud) => acc + ud.moneyOut, 0);
+			const totalHoursGameByUser =
+				day.userDay.reduce((acc, ud) => {
+					const start = moment(ud.timeIn);
+					const end = moment(ud.timeOut);
+					var duration = moment.duration(end.diff(start));
+					var hours = duration.asHours();
+					return acc + hours;
+				}, 0) ?? 0;
 
 			const rake = moneyInTotal - moneyOutTotal;
+
+			for (let i = 0; i < (day.userDay?.length ?? 0); i++) {
+				const userDay = day.userDay[i];
+				const start = moment(userDay.timeIn);
+				const end = moment(userDay.timeOut);
+				var duration = moment.duration(end.diff(start));
+				var hoursGameOfUser = duration.asHours();
+				const rakeShare = (rake / totalHoursGameByUser) * hoursGameOfUser;
+
+				const result = await updateShareRake(userDay.id, rakeShare);
+			}
+
 			const result = await closeDay(day, data.endTime, rake);
 			if (!result.error) {
 				setDay(result.data);
@@ -136,6 +161,45 @@ const ManageDayDetails = ({ dayId }: ImanageDayDetailsProps) => {
 		},
 		[day]
 	);
+
+	const getTimeOfGame = useCallback(() => {
+		if (!day) return 0;
+		const start = moment(day.startTime);
+		const end = moment(day.endTime);
+		var duration = moment.duration(end.diff(start));
+		var hours = duration.asHours();
+		return hours;
+	}, [day]);
+
+	const renderSummury = useCallback(() => {
+		if (day?.endTime)
+			return (
+				<div className="card card-sm card-side bg-base-100 shadow-xl mb-10">
+					<figure>
+						<img
+							className="h-[250px]"
+							src="https://www.igol.it/wp-content/uploads/Texas-Hold-Em-Poker-Why-ItS-Called-The-Cadillac-Of-Poker.jpeg"
+							alt="bg-poker"
+						/>
+					</figure>
+					<div className="card-body">
+						<h2 className="card-title">Partita terminata</h2>
+						<ul>
+							<li>Inizio gioco: {formatData(day.startTime)}</li>
+							<li>Fine gioco: {formatData(day.endTime)}</li>
+							<li>Numero giocatori: {day.userDay?.length}</li>
+							<li>Tempo di gioco: {getTimeOfGame()} ore</li>
+							<li>
+								Rake totale: <span className="text-orange-500">{`${day.rake}¥`}</span>
+								<span> / </span>
+								<span className="text-violet-500">{`${fantaMoneyToEuro(day.rake)}€`}</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			);
+		return <></>;
+	}, [day]);
 
 	return (
 		<Layout title={`Giornata ${day?.name ?? "..."} del ${day?.startTime ?? "..."}`}>
@@ -169,6 +233,8 @@ const ManageDayDetails = ({ dayId }: ImanageDayDetailsProps) => {
 					</div>
 				)}
 			</div>
+
+			{renderSummury()}
 
 			{renderTableUserInGame()}
 			<br />

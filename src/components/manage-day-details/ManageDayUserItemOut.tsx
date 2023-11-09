@@ -86,7 +86,7 @@ const ManageDayUserItemOut = ({ user, day, onAddUserInDay }: IManageDayUserItemO
 
 			<td>
 				<button className="btn btn-info btn-sm" onClick={handleSubmit(addUserInGame)}>
-					Entra in partita
+					Entra
 				</button>
 			</td>
 		</tr>

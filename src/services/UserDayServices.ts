@@ -19,7 +19,12 @@ const updateMoneyOut = async (userDayId: number, moneyOut: number, timeOut: stri
     return { data: result.data?.[0] as IUserDay, error: result.error }
 }
 
+const updateShareRake = async (userDayId: number, rakeShare: number): Promise<{ data: IUserDay, error: any }> => {
+    const result = await clientDB.from('userDay').update({ rakeShare }).eq('id', userDayId).select("*, user(*)")
+    return { data: result.data?.[0] as IUserDay, error: result.error }
+}
 
 
 
-export { addUserOnDay, updateMoneyIn, updateMoneyOut }
+
+export { addUserOnDay, updateMoneyIn, updateMoneyOut, updateShareRake }

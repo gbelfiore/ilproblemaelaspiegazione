@@ -27,7 +27,7 @@ interface IUserDay {
     moneyOut: number;
     timeIn: string;
     timeOut: string;
-    rake: number;
+    rakeShare: number;
     user?: IUser;
     day?: IDay;
 }
