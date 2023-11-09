@@ -2,7 +2,7 @@ import { closeDay, getDayById } from "@/services/DayServices";
 import { IDay, IUser } from "@/types/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "../layout/Layout";
-import styles from "./manageDayDetails.module.css";
+import styles from "./ManageDayDetails.module.css";
 import { useRouter } from "next/router";
 import ManageDayUserItemIn from "./ManageDayUserItemIn";
 import { getAllUserNotInGame } from "@/services/UserServices";
